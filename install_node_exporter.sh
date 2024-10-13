@@ -30,7 +30,7 @@ setup_firewall() {
       echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"
       exit 1
   fi
-  apt install iptables netfilter-persistent -y > /dev/null
+  apt install iptables netfilter-persistent -y > /dev/null 2>&1
   iptables -A INPUT -s $ip_monitoring -p tcp --dport 9100 -j ACCEPT
   iptables -A INPUT -p tcp --dport 9100 -j DROP
   echo -e "\nПрименены настройки Firewall.\n"
@@ -62,7 +62,7 @@ compare_version() {
 
 if which "node_exporter" &> /dev/null; then
   echo "Node Exporter уже установлен на сервере."
-  if [ $(iptables -L | grep 9100 | wc -l) > 0 ]; then
+  if iptables -L | grep -q 9100; then
     echo "Firewall тоже настроен."
     echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"
     exit 0
