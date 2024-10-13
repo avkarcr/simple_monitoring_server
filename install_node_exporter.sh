@@ -15,24 +15,26 @@ if [ "$version" -ne 22 ]; then
   exit 1
 fi
 
-if which "node_exporter" &> /dev/null; then
-  echo "Node Exporter уже установлен на сервере."
-  read -p "Настроить Firewall? Вам понадобится IP-адрес вашего сервера с Prometheus (y/n): " choice
-  if ! [[ "$choice" =~ ^[Yy]$ ]]; then
-    echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"
-    exit 0
-  fi
-  read -p "Введите IP-адрес вашего сервера для мониторинга: " ip_monitoring
+if [ "$#" -eq 1 ]; then
+  $ip_monitoring=$1
   if ! [[ $ip_monitoring =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
       echo -e "\nОшибка: неверный формат IP-адреса $ip_monitoring.\n"
       exit 1
   fi
-  apt install iptables netfilter-persistent -y
+fi
+
+setup_firewall() {
+  local ip_mon="$1"
+  if ! [[ $ip_mon =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+      echo -e "\nОшибка: неверный формат IP-адреса $ip_monitoring.\n"
+      echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"
+      exit 1
+  fi
+  apt install iptables netfilter-persistent -y > /dev/null
   iptables -A INPUT -s $ip_monitoring -p tcp --dport 9100 -j ACCEPT
   iptables -A INPUT -p tcp --dport 9100 -j DROP
-  echo -e "\nНастройки Firewall применены. Пользуемся!\n"
-  exit 0
-fi
+  echo -e "\nПрименены настройки Firewall.\n"
+}
 
 compare_version() {
   local script_version="$1"
@@ -57,6 +59,18 @@ compare_version() {
   fi
   eval "$variable_name=${latest_major}.${latest_minor}.${latest_patch}"
 }
+
+if which "node_exporter" &> /dev/null; then
+  echo "Node Exporter уже установлен на сервере."
+  read -p "Настроить Firewall? Вам понадобится IP-адрес вашего сервера с Prometheus (y/n): " choice
+  if ! [[ "$choice" =~ ^[Yy]$ ]]; then
+    echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"
+    exit 0
+  fi
+  read -p "Введите IP-адрес вашего сервера для мониторинга: " ip_monitoring
+  setup_firewall $ip_monitoring
+  exit 0
+fi
 
 echo -ne "\nАнализируем актуальную версию Node Exporter..."
 compare_version $NODE_EXPORTER_VER "Node Exporter" "https://github.com/prometheus/node_exporter/releases" NODE_EXPORTER_VER
@@ -93,6 +107,10 @@ EOF
 systemctl daemon-reload
 systemctl start node_exporter > /dev/null 2>&1
 systemctl enable node_exporter > /dev/null 2>&1
+
+if [ ! -z "${ip_monitoring+x}" ]; then
+  setup_firewall $ip_monitoring
+fi
 
 if systemctl is-active --quiet node_exporter; then
   echo -e "\033[0;32mNode Exporter is active!\033[0m"
