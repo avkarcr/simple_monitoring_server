@@ -11,13 +11,13 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 if which "grafana-server" &> /dev/null || which "prometheus" &> /dev/null; then
-  echo "Скриптом нельзя пользоваться, если не сервере уже установлены либо Grafana, либо Prometheus."
+  echo "Скриптом нельзя пользоваться, если на сервере уже установлены либо Grafana, либо Prometheus."
   exit 1
 fi
 
 version=$(lsb_release -r | awk '{print $2}' | cut -d. -f1)
-if [ "$version" -ne 22 ]; then
-    echo "Скрипт протестирован только на Ubuntu 22.x. Завершаем работу."
+if [ "$version" -ne 22 ] && [ "$version" -ne 20 ]; then
+    echo "Скрипт протестирован только на Ubuntu 20.x и 22.x. Завершаем работу."
     exit 1
 fi
 
@@ -32,8 +32,10 @@ compare_version() {
   latest_major=$(echo $latest_version | cut -d ' ' -f 1)
   latest_minor=$(echo $latest_version | cut -d ' ' -f 2)
   latest_patch=$(echo $latest_version | cut -d ' ' -f 3)
+  old_version_found=false
   if (( latest_major > script_major )) || \
      (( latest_major == script_major && latest_minor > script_minor )); then
+    old_version_found=true
     echo -e "\033[0;33mПредупреждение: Версия $app_name (${latest_major}.${latest_minor}.${latest_patch}) выше, чем версия, под которую написан скрипт (${script_version}).\033[0m"
     echo "Свяжитесь с разработчиком (TG: Karaev_Alexey, тема: 'Simple monitoring server') или продолжайте на свой страх и риск."
     read -p "Продолжить? (y/n): " choice
@@ -61,10 +63,23 @@ reboot_countdown() {
   sudo shutdown -r now
 }
 
+run_sed() {
+    local search_pattern="$1"
+    local file="$2"
+    local grep_pattern=$(echo "$search_pattern" | sed 's/^\/\^\[\[\:space\:]]\*//' | sed 's/\/d$//')
+    if grep -q "${grep_pattern}" "$file"; then
+        sed -i "$search_pattern" "$file"
+    else
+        error_flag=true
+    fi
+}
+
 echo -ne "\nАнализируем актуальные версии Grafana & Prometheus..."
 compare_version $PROMETHEUS_VER "Prometheus" "https://github.com/prometheus/prometheus/releases" PROMETHEUS_VER
 compare_version $GRAFANA_VER "Grafana" "https://github.com/grafana/grafana/releases" GRAFANA_VER
-echo -e "\033[0;32m  [ OK ]\033[0m\n"
+if [ "$old_version_found" = true ]; then
+    echo -e "\033[0;32m  [ OK ]\033[0m\n"
+fi
 
 echo -e "\n############################################################################\n"
 echo "Этот скрипт установит на сервер системы мониторинга: Grafana & Prometheus"
@@ -96,7 +111,35 @@ echo -ne "\nУстанавливаем необходимые утилиты..."
 touch /var/log/auth.log > /dev/null
 apt install iptables netfilter-persistent netcat adduser libfontconfig1 musl tmux htop curl -y > /dev/null 2>&1
 apt install fail2ban apt-transport-https software-properties-common wget -y > /dev/null 2>&1
-echo -e "\033[0;32m  [ OK ]\033[0m\n"
+config_file_base="/etc/fail2ban/jail.conf"
+config_file="/etc/fail2ban/jail.local"
+error_flag=false
+if [ -f "$config_file_base" ]; then
+    cp $config_file_base $config_file
+    run_sed '/^[[:space:]]*findtime  = 10m/d' "$config_file"
+    run_sed '/^[[:space:]]*maxretry = 5/d' "$config_file"
+    run_sed '/^[[:space:]]*bantime  = 10m/d' "$config_file"
+    run_sed '/^[[:space:]]*bantime\.increment =/d' "$config_file"
+    run_sed '/^[[:space:]]*bantime\.rndtime =/d' "$config_file"
+    run_sed '/^[[:space:]]*bantime\.factor =/d' "$config_file"
+    run_sed '/^[[:space:]]*bantime\.formula =/d' "$config_file"
+    if [ "$error_flag" = true ]; then
+      echo -e "\r\nВерсия fail2ban не соответствует версии, под которую написан скрипт."
+      echo "Используем стандартные настройки."
+      echo -e "Пожалуйста, свяжитесь с разработчиком (TG: Karaev_Alexey, тема: 'Simple monitoring server')\n"
+      cp $config_file_base $config_file
+    else
+      sed -i '/^\[DEFAULT\]/a findtime = 30m\nmaxretry = 3\nbantime = 60m\nbantime.increment = true\nbantime.rndtime = 60\nbantime.factor = 2\nbantime.formula = ban.Time * math.exp(float(ban.Count+1)*banFactor)/math.exp(1*banFactor)' "$config_file"
+      systemctl restart fail2ban
+    fi
+else
+    error_flag=true
+    echo "Установка fail2ban выполнена с ошибками."
+    echo "Пожалуйста, свяжитесь с разработчиком (TG: Karaev_Alexey, тема: 'Simple monitoring server')"
+fi
+if [ "$error_flag" = false ]; then
+    echo -e "\033[0;32m  [ OK ]\033[0m\n"
+fi
 
 echo -ne "Устанавливаем Grafana..."
 mkdir -p /etc/apt/keyrings/
@@ -191,4 +234,4 @@ if systemctl is-active --quiet grafana-server; then
 else
   echo -e "\033[0;31mGrafana is NOT active!\033[0m"
 fi
-echo -e "Скрипт завершил работу!\n"
+echo -e "Скрипт завершил работу.\n"
