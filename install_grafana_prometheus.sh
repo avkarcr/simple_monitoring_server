@@ -17,7 +17,7 @@ fi
 
 version=$(lsb_release -r | awk '{print $2}' | cut -d. -f1)
 if [ "$version" -ne 22 ] && [ "$version" -ne 20 ]; then
-    echo "Скрипт протестирован только на Ubuntu 20.x и 22.x. Завершаем работу."
+    echo "Скрипт работает только под Ubuntu 20.x и 22.x. Завершаем работу."
     exit 1
 fi
 
@@ -109,7 +109,7 @@ fi
 
 echo -ne "\nУстанавливаем необходимые утилиты..."
 touch /var/log/auth.log > /dev/null
-apt install iptables netfilter-persistent netcat adduser libfontconfig1 musl tmux htop curl -y > /dev/null 2>&1
+apt install iptables netfilter-persistent adduser libfontconfig1 musl tmux htop curl -y > /dev/null 2>&1
 apt install fail2ban apt-transport-https software-properties-common wget -y > /dev/null 2>&1
 config_file_base="/etc/fail2ban/jail.conf"
 config_file="/etc/fail2ban/jail.local"
