@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Скрипт был протестирован на этих версиях.
+# Скрипт был протестирован на этой версии.
 # При наличии релиза с новой версией (кроме патча), получим предупреждение
 NODE_EXPORTER_VER="1.8.2"
 
@@ -9,15 +9,29 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
-if which "node_exporter" &> /dev/null; then
-  echo "Node Exporter уже установлен на сервере. Завершаем работу."
-  exit 1
-fi
-
 version=$(lsb_release -r | awk '{print $2}' | cut -d. -f1)
 if [ "$version" -ne 22 ]; then
   echo "Скрипт протестирован только на Ubuntu 22.x. Завершаем работу."
   exit 1
+fi
+
+if which "node_exporter" &> /dev/null; then
+  echo "Node Exporter уже установлен на сервере."
+  read -p "Настроить Firewall? Вам понадобится IP-адрес вашего сервера с Prometheus (y/n): " choice
+  if ! [[ "$choice" =~ ^[Yy]$ ]]; then
+    echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"
+    exit 0
+  fi
+  read -p "Введите IP-адрес вашего сервера для мониторинга: " ip_monitoring
+  if ! [[ $ip_monitoring =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+      echo -e "\nОшибка: неверный формат IP-адреса $ip_monitoring.\n"
+      exit 1
+  fi
+  apt install iptables netfilter-persistent -y
+  iptables -A INPUT -s $ip_monitoring -p tcp --dport 9100 -j ACCEPT
+  iptables -A INPUT -p tcp --dport 9100 -j DROP
+  echo -e "\nНастройки Firewall применены. Пользуемся!\n"
+  exit 0
 fi
 
 compare_version() {
