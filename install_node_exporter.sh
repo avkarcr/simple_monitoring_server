@@ -61,7 +61,7 @@ compare_version() {
 }
 
 if which "node_exporter" &> /dev/null; then
-  echo "Node Exporter уже установлен на сервере."
+  echo -e "\nNode Exporter уже установлен на сервере."
   if iptables -L | grep -q 9100; then
     echo "Firewall тоже настроен."
     echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"

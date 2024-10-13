@@ -49,7 +49,7 @@ add_ips() {
 
 remove_ips() {
     echo -e "\nТекущие IP-адреса в job=prometheus:"
-    current_targets=$(grep -Po '(?<=targets: \[)[^]]*' "$PROMETHEUS_CONFIG" | tr ',' '\n' | sed 's/"//g' | grep -v "localhost:$PORT")
+    current_targets=$(grep -Po '(?<=targets: \[)[^]]*' "$PROMETHEUS_CONFIG" | tr ',' '\n' | sed 's/"//g' | grep -v localhost)
     if [[ -z "$current_targets" ]]; then
         echo -e "\nНет IP-адресов для удаления, кроме localhost."
         return
