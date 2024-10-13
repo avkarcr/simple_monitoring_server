@@ -62,6 +62,11 @@ compare_version() {
 
 if which "node_exporter" &> /dev/null; then
   echo "Node Exporter уже установлен на сервере."
+  if [ $(iptables -L | grep 9100 | wc -l) > 0 ]; then
+    echo "Firewall тоже настроен."
+    echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"
+    exit 0
+  fi
   read -p "Настроить Firewall? Вам понадобится IP-адрес вашего сервера с Prometheus (y/n): " choice
   if ! [[ "$choice" =~ ^[Yy]$ ]]; then
     echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"
