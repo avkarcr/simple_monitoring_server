@@ -16,7 +16,7 @@ if [ "$version" -ne 22 ]; then
 fi
 
 if [ "$#" -eq 1 ]; then
-  $ip_monitoring=$1
+  ip_monitoring="$1"
   if ! [[ $ip_monitoring =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
       echo -e "\nОшибка: неверный формат IP-адреса $ip_monitoring.\n"
       exit 1
@@ -65,6 +65,10 @@ if which "node_exporter" &> /dev/null; then
   if iptables -L | grep -q 9100; then
     echo "Firewall тоже настроен."
     echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"
+    exit 0
+  fi
+  if [ ! -z "${ip_monitoring+x}" ]; then
+    setup_firewall $ip_monitoring
     exit 0
   fi
   read -p "Настроить Firewall? Вам понадобится IP-адрес вашего сервера с Prometheus (y/n): " choice
