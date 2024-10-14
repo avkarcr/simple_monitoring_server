@@ -70,7 +70,7 @@ remove_ips() {
         exit 0
     fi
     if [ "$ip_choice" == "all" ]; then
-        sed -i "/targets: \[/c\ \ \ \ \ \ \ \ targets: [\"localhost:9090\"]" "$PROMETHEUS_CONFIG"
+        sed -i "/targets: \[/c\ \ \ \ \ \ \ \ - targets: [\"localhost:9090\"]" "$PROMETHEUS_CONFIG"
         echo -e "\nВсе IP-адреса удалены (кроме localhost:9090)."
         result=true
     elif [[ ${ip_map[$ip_choice]+_} ]]; then
