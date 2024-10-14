@@ -216,8 +216,8 @@ iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 iptables -A INPUT -p tcp --dport 3000 -j ACCEPT
 iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -P INPUT DROP
-mkdir -p /etc/iptables/
-cd / && netfilter-persistent save
+cd / ; mkdir -p /etc/iptables/
+netfilter-persistent save
 echo -e "\033[0;32m  [ OK ]\033[0m\n"
 systemctl daemon-reload > /dev/null 2>&1
 systemctl enable prometheus > /dev/null 2>&1
