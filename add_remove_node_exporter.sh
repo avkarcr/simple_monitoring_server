@@ -36,7 +36,7 @@ add_ips() {
       if [[ -z $node_ip ]]; then
           continue
       fi
-      if echo "$current_targets" | grep -q "$node_ip"; then
+      if echo "$current_targets" | grep -qF "$node_ip"; then
           echo -e "\nАдрес $node_ip уже есть в конфигурации."
       else
           current_targets="$current_targets, \"$node_ip:$PORT\""
