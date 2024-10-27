@@ -10,9 +10,9 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 version=$(lsb_release -r | awk '{print $2}' | cut -d. -f1)
-if [ "$version" -ne 22 ]; then
-  echo "Скрипт протестирован только на Ubuntu 22.x. Завершаем работу."
-  exit 1
+if [ "$version" -ne 22 ] && [ "$version" -ne 20 ]; then
+    echo "Скрипт работает только под Ubuntu 20.x и 22.x. Завершаем работу."
+    exit 1
 fi
 
 if [ "$#" -eq 1 ]; then
@@ -93,6 +93,7 @@ wget https://github.com/prometheus/node_exporter/releases/download/v${NODE_EXPOR
 tar xvfz node_exporter-${NODE_EXPORTER_VER}.linux-amd64.tar.gz > /dev/null 2>&1
 cd node_exporter-${NODE_EXPORTER_VER}.linux-amd64
 mv node_exporter /usr/bin/
+cd ~
 rm -rf /tmp/node_exporter*
 
 useradd -rs /bin/false node_exporter > /dev/null 2>&1
