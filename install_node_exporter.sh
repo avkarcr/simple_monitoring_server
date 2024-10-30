@@ -47,10 +47,9 @@ compare_version() {
   latest_major=$(echo $latest_version | cut -d ' ' -f 1)
   latest_minor=$(echo $latest_version | cut -d ' ' -f 2)
   latest_patch=$(echo $latest_version | cut -d ' ' -f 3)
-  if (( latest_major > script_major )) || \
-     (( latest_major == script_major && latest_minor > script_minor )); then
+  if (( latest_major > script_major )); then
     echo -e "\033[0;33mПредупреждение: Версия $app_name (${latest_major}.${latest_minor}.${latest_patch}) выше, чем версия, под которую написан скрипт (${script_version}).\033[0m"
-    echo "Свяжитесь с разрботчиком (TG: Karaev_Alexey, тема: 'Simple monitoring scripts') или продолжайте на свой страх и риск."
+    echo "Рекомендуется связаться с разработчиком (можно оставить комментарий к инструкции на ютубе). А можете продолжить, но скрипт не тестировался на этой версии..."
     read -p "Продолжить? (y/n): " choice
     if ! [[ "$choice" =~ ^[Yy]$ ]]; then
       echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"

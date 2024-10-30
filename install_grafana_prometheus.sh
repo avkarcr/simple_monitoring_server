@@ -33,11 +33,10 @@ compare_version() {
   latest_minor=$(echo $latest_version | cut -d ' ' -f 2)
   latest_patch=$(echo $latest_version | cut -d ' ' -f 3)
   old_version_found=false
-  if (( latest_major > script_major )) || \
-     (( latest_major == script_major && latest_minor > script_minor )); then
+  if (( latest_major > script_major )); then
     old_version_found=true
     echo -e "\033[0;33mПредупреждение: Версия $app_name (${latest_major}.${latest_minor}.${latest_patch}) выше, чем версия, под которую написан скрипт (${script_version}).\033[0m"
-    echo "Свяжитесь с разработчиком (TG: Karaev_Alexey, тема: 'Simple monitoring server') или продолжайте на свой страх и риск."
+    echo "Рекомендуется связаться с разработчиком (можно оставить комментарий к инструкции на ютубе). А можете продолжить, но скрипт не тестировался на этой версии..."
     read -p "Продолжить? (y/n): " choice
     if ! [[ "$choice" =~ ^[Yy]$ ]]; then
       echo -e "Скрипт завершает работу. Изменения в систему не вносились.\n"
@@ -126,7 +125,7 @@ if [ -f "$config_file_base" ]; then
     if [ "$error_flag" = true ]; then
       echo -e "\r\nВерсия fail2ban не соответствует версии, под которую написан скрипт."
       echo "Используем стандартные настройки."
-      echo -e "Пожалуйста, свяжитесь с разработчиком (TG: Karaev_Alexey, тема: 'Simple monitoring server')\n"
+      echo -e "Пожалуйста, свяжитесь с разработчиком (можно оставить комментарий к инструкции на ютубе)\n"
       cp $config_file_base $config_file
     else
       sed -i '/^\[DEFAULT\]/a findtime = 30m\nmaxretry = 3\nbantime = 60m\nbantime.increment = true\nbantime.rndtime = 60\nbantime.factor = 2\nbantime.formula = ban.Time * math.exp(float(ban.Count+1)*banFactor)/math.exp(1*banFactor)' "$config_file"
@@ -135,7 +134,7 @@ if [ -f "$config_file_base" ]; then
 else
     error_flag=true
     echo "Установка fail2ban выполнена с ошибками."
-    echo "Пожалуйста, свяжитесь с разработчиком (TG: Karaev_Alexey, тема: 'Simple monitoring server')"
+    echo -e "Пожалуйста, свяжитесь с разработчиком (можно оставить комментарий к инструкции на ютубе)"
 fi
 if [ "$error_flag" = false ]; then
     echo -e "\033[0;32m  [ OK ]\033[0m\n"
