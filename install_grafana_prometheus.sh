@@ -111,7 +111,7 @@ fi
 
 echo -ne "\nУстанавливаем необходимые утилиты..."
 touch /var/log/auth.log > /dev/null
-apt install iptables netfilter-persistent adduser libfontconfig1 musl tmux htop curl -y > /dev/null 2>&1
+apt install iptables adduser libfontconfig1 musl tmux htop curl -y > /dev/null 2>&1
 apt install fail2ban apt-transport-https software-properties-common wget -y > /dev/null 2>&1
 config_file_base="/etc/fail2ban/jail.conf"
 config_file="/etc/fail2ban/jail.local"
@@ -218,8 +218,10 @@ iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 iptables -A INPUT -p tcp --dport 3000 -j ACCEPT
 iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -P INPUT DROP
-cd / ; mkdir -p /etc/iptables/
-netfilter-persistent save
+mkdir -p /etc/iptables/
+iptables-save > /etc/iptables/rules.v4
+cd /
+echo "iptables-restore < /etc/iptables/rules.v4" >> /etc/profile
 echo -e "\033[0;32m  [ OK ]\033[0m\n"
 systemctl daemon-reload > /dev/null 2>&1
 systemctl enable prometheus > /dev/null 2>&1
