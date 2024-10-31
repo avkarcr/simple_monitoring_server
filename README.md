@@ -24,7 +24,7 @@
 
 2. **Скачайте скрипты на сервер для мониторинга**
   ```bash
-  wget https://github.com/avkarcr/simple_monitoring_server/raw/main/install_grafana_prometheus.sh && wget https://github.com/avkarcr/simple_monitoring_server/raw/main/add_remove_node_exporter.sh && chmod +x install_grafana_prometheus.sh add_remove_node_exporter.sh
+  wget -q https://github.com/avkarcr/simple_monitoring_server/raw/main/install_grafana_prometheus.sh https://github.com/avkarcr/simple_monitoring_server/raw/main/add_remove_node_exporter.sh && chmod +x install_grafana_prometheus.sh add_remove_node_exporter.sh
   ```   
 
 3. **Установите Grafana и Prometheus**
