@@ -96,10 +96,10 @@ print_help() {
   echo -e "  \033[1;36mfile\033[0m       - Файл со списком IP-адресов для добавления"
   echo -e "  \033[1;36mIP1 IP2...\033[0m - IP-адреса для добавления вручную"
   echo -e "\n\033[1;34mПримеры использования:\033[0m"
-  echo -e "  \033[1;35m./prometheus_add_remove_exporter.sh remove\033[0m    - Интерактивное меню по удалению IP-адреса"
-  echo -e "  \033[1;35m./prometheus_add_remove_exporter.sh nodes.txt\033[0m    - Добавление IP из файла nodes.txt"
-  echo -e "  \033[1;35m./prometheus_add_remove_exporter.sh 1.1.1.1 2.2.2.2\033[0m - Добавление IP 1.1.1.1 и 2.2.2.2"
-  echo -e "  \033[1;35m./prometheus_add_remove_exporter.sh 3.3.3.3\033[0m - Добавление IP 3.3.3.3"
+  echo -e "  \033[1;35m./add_remove_node_exporter.sh remove\033[0m    - Интерактивное меню по удалению IP-адреса"
+  echo -e "  \033[1;35m./add_remove_node_exporter.sh nodes.txt\033[0m    - Добавление IP из файла nodes.txt"
+  echo -e "  \033[1;35m./add_remove_node_exporter.sh 1.1.1.1 2.2.2.2\033[0m - Добавление IP 1.1.1.1 и 2.2.2.2"
+  echo -e "  \033[1;35m./add_remove_node_exporter.sh 3.3.3.3\033[0m - Добавление IP 3.3.3.3"
   echo -e "\n\033[1;32m========================================================================================\033[0m"
 }
 
