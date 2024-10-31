@@ -91,7 +91,6 @@ echo -e "\n#####################################################################
 
 echo -e "Проверяются доступные обновления пакетов системы... Ожидайте..."
 update_output=$(sudo apt update 2>&1)
-SESSION_NAME="setup"
 if echo "$update_output" | grep -q "packages can be upgraded"; then
   echo -e "\033[0;31mПакеты Ubuntu не обновлены.\033[0m\n"
   echo "Для работы скрипта нужно выполнить обновление системы."
