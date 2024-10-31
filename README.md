@@ -37,10 +37,12 @@
   Ссылка плейлист указана выше. Вам нужно первое видео, которое отмечено, как "ПРАКТИКА".
 
 5. **Установите Node Exporter на те серверы, которые вы хотите мониторить**
-  На каждом сервере, который вы хотите мониторить запутите следующий скрипт:
+  На каждом сервере, который вы хотите мониторить скачайте следующий скрипт для установки:
   ```bash
-  wget https://github.com/avkarcr/simple_monitoring_server/raw/main/install_node_exporter.sh
-  chmod +x install_node_exporter.sh
+  wget -q https://github.com/avkarcr/simple_monitoring_server/raw/main/install_node_exporter.sh && chmod +x install_node_exporter.sh
+  ```   
+  Установите Node Exporter:
+  ```bash
   ./install_node_exporter.sh
   ```   
 
